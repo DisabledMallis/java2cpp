@@ -71,15 +71,14 @@ public final class App {
         String unmappedFieldPath = fieldLine.split(" ")[1];
         File fieldAsFile = new File(unmappedFieldPath);
         String unmappedFieldName = fieldAsFile.getName();
-        String className = fieldAsFile.getParentFile().getPath();
+        String className = fieldAsFile.getParentFile().getPath().replace("\\","/");
 
         for(CppClass cppClass : classes){
             if(cppClass.classPath.equalsIgnoreCase(className)){
-                cppClass.addField(new CppField(unmappedFieldName, ""));
+                cppClass.addField(new CppField("%AWAITTYPE%", unmappedFieldName));
+                Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);
             }
         }
-
-        Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);
     }
 
     public static void main(String[] args) throws IOException{

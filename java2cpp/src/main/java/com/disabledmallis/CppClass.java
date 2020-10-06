@@ -23,13 +23,13 @@ public class CppClass {
         fields.add(fieldToAdd);
     }
     public String genHeader(){
-        String fields_str = "";
+        StringBuilder fields_str = new StringBuilder();
         for(CppField field : fields){
-            fields_str += field.toString()+"\n";
+            fields_str.append(field.toString()).append("\n");
         }
-        String methods_str = "";
+        StringBuilder methods_str = new StringBuilder();
         for(CppMethod method : methods){
-            methods_str += method.toString();
+            methods_str.append(method.toString());
         }
         return ("//Class generated with java2cpp by DisabledMallis: https://github.com/DisabledMallis/java2cpp\n"
         +"#include <jni.h>\n"
