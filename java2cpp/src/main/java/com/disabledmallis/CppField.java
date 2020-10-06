@@ -11,4 +11,8 @@ public class CppField {
     public String toString(){
         return type + " " + name;
     }
+    public String genGetSet(){
+        return type + " get_" + name + "() {}" + "\n"
+                + "void set_" + name + "("+type+" obj) {}";
+    }
 }

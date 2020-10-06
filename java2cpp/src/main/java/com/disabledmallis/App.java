@@ -81,6 +81,19 @@ public final class App {
         }
     }
 
+    public static void handleMethodLine(String methodLine) {
+        String obfuscatedName = methodLine.split(" ")[0];
+        String obfuscatedParams = methodLine.split(" ")[1];
+        String unmappedMethodPath = methodLine.split(" ")[2];
+        String deobfMethodParams = methodLine.split(" ")[3];
+
+        File methodAsFile = new File(unmappedMethodPath);
+        String unmappedFuncName = methodAsFile.getName();
+        String className = methodAsFile.getParentFile().getPath();
+
+        Out.Out("Found func "+unmappedFuncName+" in class "+className);
+    }
+
     public static void main(String[] args) throws IOException{
         Scanner input = new Scanner(System.in);
         Out.Out("Java2Cpp - Made by DisabledMallis");
@@ -98,6 +111,9 @@ public final class App {
             }
             if(line.startsWith("FD: ")){
                 handleFieldLine(line.substring(4));
+            }
+            if(line.startsWith("MD: ")){
+                handleMethodLine(line.substring(4));
             }
             srgContent += line+System.lineSeparator();
         }

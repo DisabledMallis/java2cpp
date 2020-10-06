@@ -25,7 +25,7 @@ public class CppClass {
     public String genHeader(){
         StringBuilder fields_str = new StringBuilder();
         for(CppField field : fields){
-            fields_str.append(field.toString()).append("\n");
+            fields_str.append(field.genGetSet()).append("\n");
         }
         StringBuilder methods_str = new StringBuilder();
         for(CppMethod method : methods){
