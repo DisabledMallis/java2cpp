@@ -1,5 +1,6 @@
 package com.disabledmallis;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import com.disabledmallis.Utils;
@@ -31,6 +32,9 @@ public class CppMethod {
         if(safeRetType == null){
             safeRetType = returnType;
         }
+        else{
+            safeRetType = Utils.primitiveToCpp(safeRetType);
+        }
         if(!Utils.isPrimitive(Utils.jvmToPrimitive(returnType))){
             safeRetType = "class "+returnType+"*";
         }
@@ -42,6 +46,6 @@ public class CppMethod {
     }
 
     public void addParameter(String name, String type) {
-        parameters.add(new CppField(type, name));
+        parameters.add(new CppField(new File(type).getName(), type, name));
     }
 }

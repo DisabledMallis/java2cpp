@@ -1,9 +1,9 @@
 package com.disabledmallis;
 
 public class Utils {
-    static String[] primitives = {"byte","char","short","int","long","float","double","boolean"};
-    static String[] jvmPrims = {"B","C","S","I","J","F","D","Z"};
-    static String[] cppPrims = {"char","int","long long","float","double","bool"};
+    static String[] primitives = {"byte","char","short","int","long","float","double","boolean","void"};
+    static String[] jvmPrims = {"B","C","S","I","J","F","D","Z","V"};
+    static String[] cppPrims = {"char","char","short","int","long long","float","double","bool","void"};
     public static boolean isPrimitive(String type){
         for(String primitive : primitives){
             if(primitive.equalsIgnoreCase(type)){
@@ -30,6 +30,6 @@ public class Utils {
             }
             i++;
         }
-        return null;
+        return primitive;
     }
 }

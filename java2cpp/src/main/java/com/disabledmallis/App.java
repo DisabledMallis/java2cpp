@@ -76,7 +76,7 @@ public final class App {
 
         for(CppClass cppClass : classes){
             if(cppClass.classPath.equalsIgnoreCase(className)){
-                cppClass.addField(new CppField("%AWAITTYPE%", unmappedFieldName));
+                cppClass.addField(new CppField("%AWAITTYPE%", null, unmappedFieldName));
                 Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);
             }
         }
@@ -125,7 +125,8 @@ public final class App {
                     else{
                         if(paramType==';'){
                             readingClass=false;
-                            paramTypes.add(buildBuf.toString());
+                            String nextClassPath = buildBuf.toString();
+                            paramTypes.add(nextClassPath);
                             continue;
                         }
                         else{
