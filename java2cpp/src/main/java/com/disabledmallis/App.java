@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -87,11 +88,63 @@ public final class App {
         String unmappedMethodPath = methodLine.split(" ")[2];
         String deobfMethodParams = methodLine.split(" ")[3];
 
+        String params = deobfMethodParams.substring(deobfMethodParams.indexOf("(")+1).substring(0, deobfMethodParams.indexOf(")"));
+        String returnType = deobfMethodParams.substring(deobfMethodParams.indexOf(")")+1);
+
         File methodAsFile = new File(unmappedMethodPath);
         String unmappedFuncName = methodAsFile.getName();
-        String className = methodAsFile.getParentFile().getPath();
+        String className = methodAsFile.getParentFile().getPath().replace("\\","/");
 
-        Out.Out("Found func "+unmappedFuncName+" in class "+className);
+        for(CppClass cppClass : classes){
+            if(cppClass.classPath.equalsIgnoreCase(className)){
+                CppMethod method = new CppMethod(unmappedFuncName, unmappedFuncName, returnType);
+
+                boolean readingClass = false;
+                ArrayList<String> paramTypes = new ArrayList<>();
+                StringBuilder buildBuf = null;
+                for(int i  = 0; i<params.length(); i++){
+                    char paramType = params.charAt(i);
+                    if(!readingClass){
+                        if(paramType == 'L'){
+                            readingClass=true;
+                            buildBuf = new StringBuilder();
+                            continue;
+                        }
+                        else{
+                            String primStr = Utils.jvmToPrimitive((paramType+"").toUpperCase());
+                            if(primStr != null){
+                                paramTypes.add(primStr);
+                            }
+                        }
+                    }
+                    else{
+                        if(paramType==';'){
+                            readingClass=false;
+                            paramTypes.add(buildBuf.toString());
+                            continue;
+                        }
+                        else{
+                            buildBuf.append(paramType);
+                        }
+                    }
+                }
+
+
+                int paramNum = 0;
+                for(String param : paramTypes){
+                    method.addParameter("param"+paramNum, param);
+                    paramNum++;
+                }
+
+
+                Out.Out("Found func "+unmappedFuncName+" in class "+className);
+                Out.Out("With parameter types:");
+                for(String param : paramTypes){
+                    Out.Out(param);
+                }
+                cppClass.addMethod(method);
+            }
+        }
     }
 
     public static void main(String[] args) throws IOException{

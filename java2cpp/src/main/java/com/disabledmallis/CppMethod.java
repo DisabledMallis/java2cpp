@@ -8,7 +8,7 @@ public class CppMethod {
     public String name;
     public String name_unmapped;
     public String returnType;
-    public ArrayList<CppField> parameters;
+    public ArrayList<CppField> parameters = new ArrayList<>();
 
     public CppMethod(String name, String name_unmapped, String returnType){
         this.name = name;
@@ -33,8 +33,12 @@ public class CppMethod {
         }
         return ("#RET #NAME(#PARAMS){\n"
         + " //TODO: Auto generated stub\n"
-        + "};").replace("#RET", safeRetType)
+        + "}\n").replace("#RET", safeRetType)
         .replace("#NAME", name)
         .replace("#PARAMS", fullParams);
+    }
+
+    public void addParameter(String name, String type) {
+        parameters.add(new CppField(type, name));
     }
 }

@@ -13,6 +13,6 @@ public class CppField {
     }
     public String genGetSet(){
         return type + " get_" + name + "() {}" + "\n"
-                + "void set_" + name + "("+type+" obj) {}";
+                + "void set_" + name + "("+type+" obj) {}\n";
     }
 }
