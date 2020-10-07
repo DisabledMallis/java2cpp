@@ -88,8 +88,13 @@ public final class App {
         String unmappedMethodPath = methodLine.split(" ")[2];
         String deobfMethodParams = methodLine.split(" ")[3];
 
-        String params = deobfMethodParams.substring(deobfMethodParams.indexOf("(")+1).substring(0, deobfMethodParams.indexOf(")"));
-        String returnType = deobfMethodParams.substring(deobfMethodParams.indexOf(")")+1);
+        String params = deobfMethodParams
+                .substring(deobfMethodParams.indexOf("(")+1)
+                .substring(0, deobfMethodParams.indexOf(")"));
+        String returnType = deobfMethodParams
+                .substring(deobfMethodParams.indexOf(")")+1);
+        if(returnType.startsWith("L"))
+            returnType = new File(returnType.substring(1, returnType.length()-1)).getName();
 
         File methodAsFile = new File(unmappedMethodPath);
         String unmappedFuncName = methodAsFile.getName();

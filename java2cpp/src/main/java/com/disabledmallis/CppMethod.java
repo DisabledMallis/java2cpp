@@ -27,8 +27,11 @@ public class CppMethod {
                 fullParams += param+", ";
             }
         }
-        String safeRetType = returnType;
-        if(!Utils.isPrimitive(returnType)){
+        String safeRetType = Utils.jvmToPrimitive(returnType);
+        if(safeRetType == null){
+            safeRetType = returnType;
+        }
+        if(!Utils.isPrimitive(Utils.jvmToPrimitive(returnType))){
             safeRetType = "class "+returnType+"*";
         }
         return ("#RET #NAME(#PARAMS){\n"
