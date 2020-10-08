@@ -38,9 +38,9 @@ public class CppMethod {
         if(!Utils.isPrimitive(Utils.jvmToPrimitive(returnType))){
             safeRetType = "class "+returnType+"*";
         }
-        return ("#RET #NAME(#PARAMS){\n"
-        + " //TODO: Auto generated stub\n"
-        + "}\n").replace("#RET", safeRetType)
+        return ("\t#RET #NAME(#PARAMS){\n"
+        + "\t\t //TODO: Auto generated stub\n"
+        + "\t}\n").replace("#RET", safeRetType)
         .replace("#NAME", name)
         .replace("#PARAMS", fullParams);
     }

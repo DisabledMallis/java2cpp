@@ -16,7 +16,11 @@ public class CppField {
         return "class "+type+"* "+name;
     }
     public String genGetSet(){
-        return type + " get_" + name + "() {}" + "\n"
-                + "void set_" + name + "("+type+" obj) {}\n";
+        return "\t"+type + " get_" + name + "() {\n" +
+                "\t\t //TODO: Auto generated stub\n" +
+                "\t}" + "\n" +
+                "\tvoid set_" + name + "("+type+" obj) {\n" +
+                "\t\t //TODO: Auto generated stub\n" +
+                "\t}\n";
     }
 }
