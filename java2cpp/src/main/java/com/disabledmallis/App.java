@@ -10,6 +10,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.CharBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +21,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Scanner;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Hello world!
@@ -61,7 +68,6 @@ public final class App {
             //Out.Out(mcpName + " isnt clean, skipping...");
             return;
         }
-        classes.add(new CppClass(mcpName, mcpPath, unmappedName));
 
         Out.Out("Added "+unmappedName+" as "+mcpName);
     }
@@ -162,6 +168,46 @@ public final class App {
 
         Out.Out("Absolute path to SRG: ");
         String pathToSrg = "A:\\Downloads\\mcp-1.8.9-srg\\joined.srg";//input.nextLine();
+        String pathToFieldsCSV = "A:\\Downloads\\mcp_stable-22-1.8.9\\fields.csv";//input.nextLine();
+        String pathToMethodsCSV = "A:\\Downloads\\mcp_stable-22-1.8.9\\methods.csv";//input.nextLine();
+        String pathToParamsCSV = "A:\\Downloads\\mcp_stable-22-1.8.9\\params.csv";//input.nextLine();
+
+        String mcJarPath = System.getenv("APPDATA")+"/.minecraft/versions/1.8.9/1.8.9.jar";
+        JarFile mcJar = new JarFile(mcJarPath);
+        Enumeration<JarEntry> e = mcJar.entries();
+
+        URL[] urls = { new URL("jar:file:" + mcJarPath +"!/") };
+        URLClassLoader cl = URLClassLoader.newInstance(urls);
+
+        while (e.hasMoreElements()) {
+            JarEntry je = e.nextElement();
+            if(je.isDirectory() || !je.getName().endsWith(".class")){
+                continue;
+            }
+            // -6 because of .class
+            String className = je.getName().substring(0,je.getName().length()-6);
+            className = className.replace('/', '.');
+            try{
+                Class c = cl.loadClass(className);
+                CppClass newClass = new CppClass(c.getName(), c.getName(), c.getName());
+                Field[] classFields = c.getFields();
+                for(Field field : classFields){
+                    newClass.addField(new CppField(field.getType().getTypeName(), c.getName(), field.getName()));
+                }
+                Method[] classMethods = c.getMethods();
+                for(Method method : classMethods){
+                    newClass.addMethod(new CppMethod("%AWAIT%", method.getName(), method.getReturnType().getTypeName()));
+                }
+                classes.add(newClass);
+                Out.Out("Loaded class "+className);
+            }catch(ClassNotFoundException ex){
+                ex.printStackTrace();
+                Out.Out("Failed to load class "+className);
+            }catch (NoClassDefFoundError ex){
+                ex.printStackTrace();
+                Out.Out("Failed to load class "+className);
+            }
+        }
 
         String srgContent = "";
         for(String line : Files.readAllLines(Paths.get(pathToSrg))) {
@@ -175,6 +221,18 @@ public final class App {
                 handleMethodLine(line.substring(4));
             }
             srgContent += line+System.lineSeparator();
+        }
+
+        for(String fieldName : Files.readAllLines(Paths.get(pathToFieldsCSV))){
+            String unmappedName = fieldName.split(",")[0];
+            String mappedName = fieldName.split(",")[1];
+            for(CppClass cppClass : classes){
+                for(CppField cppField : cppClass.fields){
+                    if(cppField.name.equals(unmappedName)){
+                        cppField.name = mappedName;
+                    }
+                }
+            }
         }
 
         File outDir = new File(cwd+"/gen");
