@@ -63,13 +63,34 @@ public final class App {
         String unmappedName = classMapping.split(" ")[0];
         String mcpPath = classMapping.split(" ")[1];
         String mcpName = new File(mcpPath).getName();
-        int isntClean = mcpPath.indexOf("$");
-        if(isntClean != -1){
-            //Out.Out(mcpName + " isnt clean, skipping...");
-            return;
+
+        int isntClean = mcpName.indexOf("$");
+        int isActuallyClean = mcpName.indexOf("$1");
+        if(isActuallyClean == -1 || mcpName.length()-2 != isActuallyClean){
+            if(isntClean != -1){
+                for(CppClass cppClass : classes){
+                    if(cppClass.className_unmapped.equals(unmappedName)){
+                        classes.remove(cppClass);
+                        break;
+                    }
+                }
+                Out.Out(mcpName + " isnt clean, skipping...");
+                return;
+            }
+        }
+        mcpPath = mcpPath.replace("$1","");
+        mcpName = mcpName.replace("$1","");
+
+        for(CppClass cppClass : classes){
+            if(cppClass.className_unmapped.equalsIgnoreCase(unmappedName)){
+                cppClass.classPath = mcpPath;
+                cppClass.className = mcpName;
+                Out.Out("Replaced "+unmappedName+" as "+mcpName);
+            }
         }
 
-        Out.Out("Added "+unmappedName+" as "+mcpName);
+
+
     }
 
     public static void handleFieldLine(String fieldLine)
@@ -82,8 +103,8 @@ public final class App {
 
         for(CppClass cppClass : classes){
             if(cppClass.classPath.equalsIgnoreCase(className)){
-                cppClass.addField(new CppField("%AWAITTYPE%", null, unmappedFieldName));
-                Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);
+                /*cppClass.addField(new CppField("%AWAITTYPE%", null, unmappedFieldName));
+                Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);*/
             }
         }
     }
@@ -189,7 +210,7 @@ public final class App {
             className = className.replace('/', '.');
             try{
                 Class c = cl.loadClass(className);
-                CppClass newClass = new CppClass(c.getName(), c.getName(), c.getName());
+                CppClass newClass = new CppClass(c.getName(), c.getName().replace('.','/'), c.getName());
                 Field[] classFields = c.getFields();
                 for(Field field : classFields){
                     newClass.addField(new CppField(field.getType().getTypeName(), c.getName(), field.getName()));
