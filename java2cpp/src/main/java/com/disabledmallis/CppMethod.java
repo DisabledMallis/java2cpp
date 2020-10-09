@@ -46,6 +46,6 @@ public class CppMethod {
     }
 
     public void addParameter(String name, String type) {
-        parameters.add(new CppField(new File(type).getName(), type, name));
+        parameters.add(new CppField(new File(type).getName(), type, name, null));
     }
 }

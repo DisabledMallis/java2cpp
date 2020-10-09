@@ -1,5 +1,13 @@
 package com.disabledmallis;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 public class Utils {
     static String[] primitives = {"byte","char","short","int","long","float","double","boolean","void"};
     static String[] jvmPrims = {"B","C","S","I","J","F","D","Z","V"};
@@ -31,5 +39,29 @@ public class Utils {
             i++;
         }
         return primitive;
+    }
+    public static void loadJar(String jarPath) throws IOException {
+        JarFile theJar = new JarFile(jarPath);
+        Enumeration<JarEntry> e = theJar.entries();
+
+        URL[] urls = { new URL("jar:file:" + jarPath +"!/") };
+        URLClassLoader cl = URLClassLoader.newInstance(urls);
+        while (e.hasMoreElements()) {
+            JarEntry je = e.nextElement();
+            if(je.isDirectory() || !je.getName().endsWith(".class")){
+                continue;
+            }
+            // -6 because of .class
+            String className = je.getName().substring(0,je.getName().length()-6);
+            className = className.replace('/', '.');
+            try{
+                Class c = cl.loadClass(className);
+            }catch(NoClassDefFoundError | ClassNotFoundException ex){
+                if(className.equals("ave")){
+                    ex.printStackTrace();
+                    Out.Out("Failed to load class "+className);
+                }
+            }
+        }
     }
 }

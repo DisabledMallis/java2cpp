@@ -4,6 +4,7 @@ import com.disabledmallis.Out;
 import com.disabledmallis.CppClass;
 import com.disabledmallis.CppField;
 import com.disabledmallis.CppMethod;
+import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
 
 import java.io.CharArrayReader;
 import java.io.File;
@@ -65,46 +66,36 @@ public final class App {
         String mcpName = new File(mcpPath).getName();
 
         int isntClean = mcpName.indexOf("$");
-        int isActuallyClean = mcpName.indexOf("$1");
-        if(isActuallyClean == -1 || mcpName.length()-2 != isActuallyClean){
-            if(isntClean != -1){
-                for(CppClass cppClass : classes){
-                    if(cppClass.className_unmapped.equals(unmappedName)){
-                        classes.remove(cppClass);
-                        break;
-                    }
-                }
-                Out.Out(mcpName + " isnt clean, skipping...");
-                return;
-            }
+        if(isntClean != -1){
+            Out.Out(mcpName + " isnt clean, skipping...");
+            return;
         }
-        mcpPath = mcpPath.replace("$1","");
-        mcpName = mcpName.replace("$1","");
 
-        for(CppClass cppClass : classes){
+        classes.add(new CppClass(mcpName,mcpPath,unmappedName));
+
+        /*for(CppClass cppClass : classes){
             if(cppClass.className_unmapped.equalsIgnoreCase(unmappedName)){
                 cppClass.classPath = mcpPath;
                 cppClass.className = mcpName;
                 Out.Out("Replaced "+unmappedName+" as "+mcpName);
             }
-        }
-
-
-
+        }*/
     }
 
     public static void handleFieldLine(String fieldLine)
     {
-        String obfuscatedName = fieldLine.split(" ")[0];
+        String obfuscatedPathName = fieldLine.split(" ")[0];
+        String obfuscatedName = obfuscatedPathName.split("/")[1];
         String unmappedFieldPath = fieldLine.split(" ")[1];
         File fieldAsFile = new File(unmappedFieldPath);
         String unmappedFieldName = fieldAsFile.getName();
         String className = fieldAsFile.getParentFile().getPath().replace("\\","/");
+        String classPath = new File(className).getParentFile().getPath();
 
         for(CppClass cppClass : classes){
             if(cppClass.classPath.equalsIgnoreCase(className)){
-                /*cppClass.addField(new CppField("%AWAITTYPE%", null, unmappedFieldName));
-                Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);*/
+                cppClass.addField(new CppField("%AWAITTYPE%", classPath, unmappedFieldName, obfuscatedName));
+                Out.Out("Read field "+unmappedFieldName+" from obfuscation "+obfuscatedName+ " in class "+className);
             }
         }
     }
@@ -180,10 +171,15 @@ public final class App {
         }
     }
 
+    static String dotMC = System.getenv("APPDATA")+"/.minecraft/";
     public static void main(String[] args) throws IOException{
         Scanner input = new Scanner(System.in);
         Out.Out("Java2Cpp - Made by DisabledMallis");
         Out.Out("Generate C++ jni code from java mappings");
+
+        Out.Out("Loading libraries...");
+        Utils.loadJar(dotMC+"libraries/com/google/guava/guava/25.1-jre/guava-25.1-jre.jar");
+        Out.Out("Loaded");
 
         Out.Out("CWD: "+cwd);
 
@@ -192,43 +188,6 @@ public final class App {
         String pathToFieldsCSV = "A:\\Downloads\\mcp_stable-22-1.8.9\\fields.csv";//input.nextLine();
         String pathToMethodsCSV = "A:\\Downloads\\mcp_stable-22-1.8.9\\methods.csv";//input.nextLine();
         String pathToParamsCSV = "A:\\Downloads\\mcp_stable-22-1.8.9\\params.csv";//input.nextLine();
-
-        String mcJarPath = System.getenv("APPDATA")+"/.minecraft/versions/1.8.9/1.8.9.jar";
-        JarFile mcJar = new JarFile(mcJarPath);
-        Enumeration<JarEntry> e = mcJar.entries();
-
-        URL[] urls = { new URL("jar:file:" + mcJarPath +"!/") };
-        URLClassLoader cl = URLClassLoader.newInstance(urls);
-
-        while (e.hasMoreElements()) {
-            JarEntry je = e.nextElement();
-            if(je.isDirectory() || !je.getName().endsWith(".class")){
-                continue;
-            }
-            // -6 because of .class
-            String className = je.getName().substring(0,je.getName().length()-6);
-            className = className.replace('/', '.');
-            try{
-                Class c = cl.loadClass(className);
-                CppClass newClass = new CppClass(c.getName(), c.getName().replace('.','/'), c.getName());
-                Field[] classFields = c.getFields();
-                for(Field field : classFields){
-                    newClass.addField(new CppField(field.getType().getTypeName(), c.getName(), field.getName()));
-                }
-                Method[] classMethods = c.getMethods();
-                for(Method method : classMethods){
-                    newClass.addMethod(new CppMethod("%AWAIT%", method.getName(), method.getReturnType().getTypeName()));
-                }
-                classes.add(newClass);
-                Out.Out("Loaded class "+className);
-            }catch(ClassNotFoundException ex){
-                ex.printStackTrace();
-                Out.Out("Failed to load class "+className);
-            }catch (NoClassDefFoundError ex){
-                ex.printStackTrace();
-                Out.Out("Failed to load class "+className);
-            }
-        }
 
         String srgContent = "";
         for(String line : Files.readAllLines(Paths.get(pathToSrg))) {
@@ -243,6 +202,60 @@ public final class App {
             }
             srgContent += line+System.lineSeparator();
         }
+
+        String mcJarPath = dotMC+"versions/1.8.9/1.8.9.jar";
+        JarFile mcJar = new JarFile(mcJarPath);
+        Enumeration<JarEntry> e = mcJar.entries();
+
+        URL[] urls = { new URL("jar:file:" + mcJarPath +"!/") };
+        URLClassLoader cl = URLClassLoader.newInstance(urls);
+
+        JDLoader loader = new JDLoader();
+        loader.setJarPath(mcJarPath);
+        JDPrinter printer = new JDPrinter();
+
+        for(CppClass cppClass : classes) {
+            while (e.hasMoreElements()) {
+                JarEntry je = e.nextElement();
+                if(je.isDirectory() || !je.getName().endsWith(".class")){
+                    continue;
+                }
+                // -6 because of .class
+                String className = je.getName().substring(0,je.getName().length()-6);
+                className = className.replace('/', '.');
+                try{
+                    ClassFileToJavaSourceDecompiler decompiler = new ClassFileToJavaSourceDecompiler();
+                    decompiler.decompile(loader, printer, className+".class");
+                    String source = printer.toString();
+                    Out.Out(source);
+                    /*Class c = cl.loadClass(className);
+                    Field[] classFields = c.getFields();
+                    if(cppClass.className_unmapped.compareToIgnoreCase(className)==0){
+                        for(CppField cppField : cppClass.fields) {
+                            for(Field field : classFields) {
+                                if(field.getName().equals(cppField.obfuscatedName)) {
+                                    String typeName = field.getType().getTypeName();
+                                    for(CppClass cppClass1 : classes){
+                                        if(cppClass1.className_unmapped.equals(typeName)){
+                                            typeName = cppClass1.className;
+                                        }
+                                    }
+                                    cppField.type = typeName;
+                                }
+                            }
+                        }
+                    }*/
+                }catch(NoClassDefFoundError | ClassNotFoundException | IncompatibleClassChangeError | VerifyError ex) {
+                    if(className.equals("ave")){
+                        ex.printStackTrace();
+                        Out.Out("Failed to load class "+className);
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
+        }
+
 
         for(String fieldName : Files.readAllLines(Paths.get(pathToFieldsCSV))){
             String unmappedName = fieldName.split(",")[0];
