@@ -4,6 +4,7 @@ import org.jd.core.v1.api.loader.Loader;
 import org.jd.core.v1.api.loader.LoaderException;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -18,7 +19,7 @@ public class JDLoader implements Loader {
     @Override
     public byte[] load(String internalName) throws LoaderException {
         try{
-            JarFile jarFile = new JarFile(jarPath);
+            /*JarFile jarFile = new JarFile(jarPath);
             Enumeration<JarEntry> entries = jarFile.entries();
             while(entries.hasMoreElements()){
                 JarEntry next = entries.nextElement();
@@ -26,8 +27,12 @@ public class JDLoader implements Loader {
                     continue;
                 }
                 
+            }*/
+            if(!internalName.endsWith(".class")){
+                internalName += ".class";
             }
-            InputStream is = new FileInputStream();
+            URL url = new URL("jar:file:"+jarPath+"!/"+internalName);
+            InputStream is = url.openStream();
 
             if (is == null) {
                 return null;
@@ -47,11 +52,11 @@ public class JDLoader implements Loader {
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
+            //e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
+        return null;
     }
 
     @Override

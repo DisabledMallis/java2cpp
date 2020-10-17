@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -12,6 +13,7 @@ public class Utils {
     static String[] primitives = {"byte","char","short","int","long","float","double","boolean","void"};
     static String[] jvmPrims = {"B","C","S","I","J","F","D","Z","V"};
     static String[] cppPrims = {"char","char","short","int","long long","float","double","bool","void"};
+    static String[] javaAccessModifiers = {"public", "private", "protected"};
     public static boolean isPrimitive(String type){
         for(String primitive : primitives){
             if(primitive.equalsIgnoreCase(type)){
@@ -63,5 +65,27 @@ public class Utils {
                 }
             }
         }
+    }
+    public static String reverseString(String toReverse){
+        StringBuilder sb = new StringBuilder(toReverse);
+        return sb.reverse().toString();
+    }
+    public static CppField[] getFields(String sourceCode){
+        ArrayList<CppField> list = new ArrayList<>();
+        String[] sourceLines = sourceCode.split("\\r\\n|\\r|\\n");
+        for(String sourceLine : sourceLines){
+            if(sourceLine.endsWith(";") && (sourceLine.startsWith("  ") && !sourceLine.startsWith("   "))) {
+                if(!sourceLine.contains("=")){
+                    String obfuscatedName = reverseString(reverseString(sourceLine).split(" ")[0].replace(";",""));
+                    String typeName = reverseString(reverseString(sourceLine).split(" ")[1].replace(";",""));
+                    if(isPrimitive(typeName))
+                        list.add(new CppField(typeName, "", "", obfuscatedName));
+                    else
+                        list.add(new CppField(typeName, typeName, "", obfuscatedName));
+                }
+                Out.Out(sourceLine);
+            }
+        }
+        return null;
     }
 }

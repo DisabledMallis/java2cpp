@@ -222,12 +222,15 @@ public final class App {
                 }
                 // -6 because of .class
                 String className = je.getName().substring(0,je.getName().length()-6);
-                className = className.replace('/', '.');
+                className = className.replace('/', '.')+".class";
                 try{
                     ClassFileToJavaSourceDecompiler decompiler = new ClassFileToJavaSourceDecompiler();
-                    decompiler.decompile(loader, printer, className+".class");
+                    decompiler.decompile(loader, printer, className);
                     String source = printer.toString();
-                    Out.Out(source);
+                    if(className.contains("ave")){
+                        Out.Out(source);
+                        Utils.getFields(source);
+                    }
                     /*Class c = cl.loadClass(className);
                     Field[] classFields = c.getFields();
                     if(cppClass.className_unmapped.compareToIgnoreCase(className)==0){
@@ -247,11 +250,11 @@ public final class App {
                     }*/
                 }catch(NoClassDefFoundError | ClassNotFoundException | IncompatibleClassChangeError | VerifyError ex) {
                     if(className.equals("ave")){
-                        ex.printStackTrace();
+                        //ex.printStackTrace();
                         Out.Out("Failed to load class "+className);
                     }
                 } catch (Exception exception) {
-                    exception.printStackTrace();
+                    //exception.printStackTrace();
                 }
             }
         }
