@@ -13,7 +13,7 @@ public class Utils {
     static String[] primitives = {"byte","char","short","int","long","float","double","boolean","void"};
     static String[] jvmPrims = {"B","C","S","I","J","F","D","Z","V"};
     static String[] cppPrims = {"char","char","short","int","long long","float","double","bool","void"};
-    static String[] javaAccessModifiers = {"public", "private", "protected"};
+    static String[] javaAccessModifiers = {"public", "private", "protected", "final"};
     public static boolean isPrimitive(String type){
         for(String primitive : primitives){
             if(primitive.equalsIgnoreCase(type)){
@@ -75,17 +75,33 @@ public class Utils {
         String[] sourceLines = sourceCode.split("\\r\\n|\\r|\\n");
         for(String sourceLine : sourceLines){
             if(sourceLine.endsWith(";") && (sourceLine.startsWith("  ") && !sourceLine.startsWith("   "))) {
-                if(!sourceLine.contains("=")){
-                    String obfuscatedName = reverseString(reverseString(sourceLine).split(" ")[0].replace(";",""));
-                    String typeName = reverseString(reverseString(sourceLine).split(" ")[1].replace(";",""));
-                    if(isPrimitive(typeName))
-                        list.add(new CppField(typeName, "", "", obfuscatedName));
-                    else
-                        list.add(new CppField(typeName, typeName, "", obfuscatedName));
+                for(String accessModifier : javaAccessModifiers){
+                    sourceLine = sourceLine.replace(accessModifier, "");
                 }
+                int firstCharPos = 9999;
+                for(char alphabet = 'A'; alphabet <= 'z'; alphabet++){
+                    int charAt = sourceLine.indexOf(alphabet);
+                    //Out.Out("" + charAt + alphabet);
+                    if(charAt > 0){
+                        if(charAt < firstCharPos){
+                            firstCharPos = charAt;
+                        }
+                    }
+                }
+                sourceLine = sourceLine.substring(firstCharPos);
+                if(sourceLine.contains("=")){
+                    sourceLine = sourceLine.substring(0, sourceLine.indexOf("="));
+                }
+                String[] split = sourceLine.split(" ");
+                String type = split[0];
+                String obf_name = split[1];
+                if(isPrimitive(type))
+                    list.add(new CppField(type, null, obf_name, obf_name));
+                else
+                    list.add(new CppField(type, type, obf_name, obf_name));
                 Out.Out(sourceLine);
             }
         }
-        return null;
+        return ((CppField[]) list.toArray());
     }
 }

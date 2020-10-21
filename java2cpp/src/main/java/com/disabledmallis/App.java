@@ -229,25 +229,23 @@ public final class App {
                     String source = printer.toString();
                     if(className.contains("ave")){
                         Out.Out(source);
-                        Utils.getFields(source);
-                    }
-                    /*Class c = cl.loadClass(className);
-                    Field[] classFields = c.getFields();
-                    if(cppClass.className_unmapped.compareToIgnoreCase(className)==0){
-                        for(CppField cppField : cppClass.fields) {
-                            for(Field field : classFields) {
-                                if(field.getName().equals(cppField.obfuscatedName)) {
-                                    String typeName = field.getType().getTypeName();
-                                    for(CppClass cppClass1 : classes){
-                                        if(cppClass1.className_unmapped.equals(typeName)){
-                                            typeName = cppClass1.className;
+                        CppField[] theFields = Utils.getFields(source);
+                        for(CppField classField : cppClass.fields){
+                            for(CppField obfField : theFields){
+                                if(classField.obfuscatedName.equals(obfField.obfuscatedName)){
+                                    if(obfField.typeClassPath != null){
+                                        for(CppClass searchClass : classes) {
+                                            if(obfField.typeClassPath.equals(searchClass.className_unmapped)){
+                                                obfField.typeClassPath = searchClass.className;
+                                                obfField.type = searchClass.className;
+                                            }
                                         }
                                     }
-                                    cppField.type = typeName;
+                                    classField.type = obfField.type;
                                 }
                             }
                         }
-                    }*/
+                    }
                 }catch(NoClassDefFoundError | ClassNotFoundException | IncompatibleClassChangeError | VerifyError ex) {
                     if(className.equals("ave")){
                         //ex.printStackTrace();
