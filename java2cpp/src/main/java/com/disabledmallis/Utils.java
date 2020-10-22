@@ -1,5 +1,7 @@
 package com.disabledmallis;
 
+import java.io.File;
+
 public class Utils {
     static String[] primitives = {"byte","char","short","int","long","float","double","boolean","void"};
     static String[] jvmPrims = {"B","C","S","I","J","F","D","Z","V"};
@@ -32,5 +34,24 @@ public class Utils {
             i++;
         }
         return primitive;
+    }
+
+    public static String deobfuscate(String mapped, String[] info, String type) {
+        String result = "";
+
+        Task:
+            for (String line : info) {
+                if (line.contains(mapped)) {
+                    String parts = line.split(type)[1].trim();
+                    result = parts.split(mapped)[1];
+                    break Task;
+                }
+            }
+
+        return result;
+    }
+
+    public static String getClassNameFromPath(String classPath){
+        return classPath.split("/")[classPath.split("/").length-1];
     }
 }
