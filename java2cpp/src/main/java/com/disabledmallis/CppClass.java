@@ -9,6 +9,7 @@ public class CppClass {
     public String mappedClassName;
     public CppClass(String unmappedClassName){
         this.unmappedClassName = unmappedClassName;
+        this.mappedClassName = unmappedClassName;
     }
 
     public void setMappedClassName(String mappedClassName){

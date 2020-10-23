@@ -51,6 +51,10 @@ public class Utils {
         return result;
     }
 
+    public static String dotToSlash(String fuck) {
+        return fuck.replace(".", "/");
+    }
+
     public static String getClassNameFromPath(String classPath){
         return classPath.split("/")[classPath.split("/").length-1];
     }

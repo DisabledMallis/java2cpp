@@ -44,11 +44,11 @@ public class CppMethod {
         if(Utils.isPrimitive(mappedMethodType)){
             theCalltype=mappedMethodType.toUpperCase();
         }
-        return ("\t#TYPE# #MAPPEDNAME#(#PARAMS#) {" +
+        return ("\n\t#TYPE# #MAPPEDNAME#(#PARAMS#) {\n" +
                 "\t\tJNIEnv* env = Utils::getJNI();\n" +
                 "\t\tjmethodID method = env->GetMethodID(env->GetObjectClass(this), \"#UNMAPPEDNAME#\", \"#METHODNODE#\");\n" +
                 "\t\t#RETURN#env->Call#CALLTYPE#Method(this, method);" +
-                "\t}")
+                "\t}\n")
                 .replace("#RETURN#", Utils.isPrimitive(unmappedMethodType) ? "return " : "")
                 .replace("#UNMAPPEDNAME#", unmappedMethodName)
                 //.replace("#MAPPEDNAME#", mappedMethodName)
