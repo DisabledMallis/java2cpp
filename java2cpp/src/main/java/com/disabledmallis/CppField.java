@@ -22,7 +22,7 @@ public class CppField extends Mappable{
     }
 
     public String genGet(){
-        String totalType = Utils.getChildFromPath(mappedType);
+        String totalType = Utils.getChildFromPath(mappedType).replace("[]", "*");
         if(!Utils.isPrimitive(totalType)){
             totalType = "class "+totalType+"*";
         }
@@ -31,7 +31,7 @@ public class CppField extends Mappable{
                 "\t{\n" +
                 "\t\tJNIEnv* env = Utils::getJNI();\n" +
                 "\t\tjfieldID field = env->GetFieldID(env->GetObjectClass(this), \"#UM_FIELDNAME#\", \"#TYPE#\");\n" +
-                "\t\treturn (#TYPENAME#*)env->GetObjectField(this, field);\n" +
+                "\t\treturn (#TOTALTYPE#)env->GetObjectField(this, field);\n" +
                 "\t}\n")
                 .replace("#TOTALTYPE#", totalType)
                 .replace("#UM_FIELDNAME#", unmappedName)
