@@ -5,17 +5,14 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
 
-import javax.sound.midi.SysexMessage;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -149,6 +146,16 @@ public class Main {
                         for(CppField cppField : cppClass.fields){
                             if(cppField.obfuscatedName.equals(fieldLine.obfName())){
                                 cppField.setUnmappedName(fieldLine.deobfName());
+                                for(CppClass cppClass1 : classes){
+                                    if(cppField.obfuscatedType.equals(cppClass1.obfuscatedName)){
+                                        cppField.setUnmappedType(cppClass1.unmappedName);
+                                        cppField.setMappedType(cppClass1.unmappedName);
+                                        Logger.Log("Mapped yo bullshit "+cppField.unmappedName);
+                                    }
+                                    else{
+                                        Logger.Log(cppField.obfuscatedType+" != "+cppClass1.obfuscatedName);
+                                    }
+                                }
                             }
                         }
                     }

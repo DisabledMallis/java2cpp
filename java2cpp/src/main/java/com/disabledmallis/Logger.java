@@ -1,5 +1,6 @@
 package com.disabledmallis;
 
+import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,5 +20,6 @@ public class Logger {
         LocalDateTime dateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SS");
         System.out.println(ANSI_WHITE + "[" + ANSI_GREEN  + dateTime.format(formatter) + ANSI_WHITE + "]" + ANSI_WHITE + " [" + ANSI_PURPLE + "Java2Cpp" + ANSI_WHITE + "] " + obj.toString());
+        //JOptionPane.showMessageDialog(null, ANSI_WHITE + "[" + ANSI_GREEN  + dateTime.format(formatter) + ANSI_WHITE + "]" + ANSI_WHITE + " [" + ANSI_PURPLE + "Java2Cpp" + ANSI_WHITE + "] " + obj.toString());
     }
 }
