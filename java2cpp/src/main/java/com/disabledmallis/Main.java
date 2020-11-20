@@ -128,6 +128,8 @@ public class Main {
         List<String> lines = Files.readAllLines(Paths.get(srgPath), StandardCharsets.UTF_8);
         lines.forEach(lineStr -> {
             SRGLine srgLine = new SRGLine(lineStr);
+
+            //Map the class names
             if(srgLine.getType().equals(SRG_Type.Class)){
                 ClassSRGLine classLine = new ClassSRGLine(lineStr);
                 String obfClassName = classLine.obfuscatedName();

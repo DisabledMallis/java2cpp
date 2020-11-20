@@ -24,7 +24,9 @@ public class ClassSRGLine extends SRGLine {
         if(hasSubClass() || isSplitClass()){
             end = deobfHalf().indexOf('$');
         }
-        return deobfHalf().substring(0, end);
+        String deobfPath = deobfHalf().substring(0, end);
+        String deobfName = Utils.getClassNameFromPath(deobfPath);
+        return deobfName;
     }
 
     public ClassSRGLine getSubclass(){
