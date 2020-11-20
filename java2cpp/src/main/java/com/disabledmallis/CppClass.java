@@ -2,18 +2,11 @@ package com.disabledmallis;
 
 import java.util.ArrayList;
 
-public class CppClass {
+public class CppClass extends Mappable {
     public ArrayList<CppField> fields = new ArrayList<>();
     public ArrayList<CppMethod> methods = new ArrayList<>();
-    public String unmappedClassName;
-    public String mappedClassName;
-    public CppClass(String unmappedClassName){
-        this.unmappedClassName = unmappedClassName;
-        this.mappedClassName = unmappedClassName;
-    }
-
-    public void setMappedClassName(String mappedClassName){
-        this.mappedClassName = mappedClassName;
+    public CppClass(String obfuscatedName){
+        super(obfuscatedName);
     }
 
     public String genClass(){
@@ -32,7 +25,7 @@ public class CppClass {
                 "%FIELDS%\n" +
                 "%METHODS%\n" +
                 "}\n")
-                .replace("%CLASSNAME%", "ave")//mappedClassName)
+                .replace("%CLASSNAME%", mappedName)
                 .replace("%FIELDS%", gennedFields.toString())
                 .replace("%METHODS%", gennedMethods.toString());
     }

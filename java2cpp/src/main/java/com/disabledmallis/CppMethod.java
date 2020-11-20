@@ -2,7 +2,7 @@ package com.disabledmallis;
 
 import java.util.ArrayList;
 
-public class CppMethod {
+public class CppMethod extends Mappable {
     class Parameter {
         public String paramType;
         public String paramName;
@@ -14,19 +14,19 @@ public class CppMethod {
             return "";
         }
     }
+    public String mappedMethodNode;
     public String mappedMethodType;
     public String unmappedMethodType;
-    public String mappedMethodName;
-    public String unmappedMethodName;
-    public String mappedMethodNode;
+    public String obfuscatedMethodType;
+
     public ArrayList<Parameter> params = new ArrayList<>();
-    public CppMethod(String unmappedMethodType, String unmappedMethodName) {
-        this.unmappedMethodType = unmappedMethodType;
-        this.unmappedMethodName = unmappedMethodName;
+    public CppMethod(String obfuscatedMethodType, String obfuscatedMethodName) {
+        super(obfuscatedMethodName);
+        this.obfuscatedMethodType = obfuscatedMethodType;
     }
 
     public void setMappedName(String mappedMethodName) {
-        this.mappedMethodName = mappedMethodName;
+        this.mappedName = mappedName;
     }
     public void setMappedType(String mappedMethodType) {
         this.mappedMethodType = mappedMethodType;
@@ -36,7 +36,7 @@ public class CppMethod {
     }
 
     public String genMethod() {
-        String totalType = unmappedMethodType;
+        String totalType = mappedMethodType;
         if(!Utils.isPrimitive(totalType)){
             totalType = "class "+totalType+"*";
         }
@@ -44,17 +44,17 @@ public class CppMethod {
         if(Utils.isPrimitive(mappedMethodType)){
             theCalltype=mappedMethodType.toUpperCase();
         }
-        return ("\n\t#TYPE# #MAPPEDNAME#(#PARAMS#) {\n" +
+        return ("\t#TYPE# #MAPPEDNAME#(#PARAMS#) {\n" +
                 "\t\tJNIEnv* env = Utils::getJNI();\n" +
                 "\t\tjmethodID method = env->GetMethodID(env->GetObjectClass(this), \"#UNMAPPEDNAME#\", \"#METHODNODE#\");\n" +
-                "\t\t#RETURN#env->Call#CALLTYPE#Method(this, method);" +
+                "\t\t#RETURN#env->Call#CALLTYPE#Method(this, method);\n" +
                 "\t}\n")
                 .replace("#RETURN#", Utils.isPrimitive(unmappedMethodType) ? "return " : "")
-                .replace("#UNMAPPEDNAME#", unmappedMethodName)
-                //.replace("#MAPPEDNAME#", mappedMethodName)
-                //.replace("#METHODNODE#", mappedMethodNode)
+                .replace("#UNMAPPEDNAME#", unmappedName)
+                .replace("#MAPPEDNAME#", mappedName)
+                .replace("#METHODNODE#", mappedMethodNode)
                 .replace("#TYPE#", totalType)
-                .replace("#PARAMS", "")//cStyleParams)
+                .replace("#PARAMS#", "")//cStyleParams)
                 .replace("#CALLTYPE#", theCalltype);
     }
 }

@@ -9,6 +9,9 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import org.jd.core.v1.ClassFileToJavaSourceDecompiler;
 
 import javax.sound.midi.SysexMessage;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -65,7 +68,7 @@ public class Main {
                     List<FieldDeclaration> fields = compilationUnit.findAll(FieldDeclaration.class);
                     for(FieldDeclaration decl : fields){
                         String fieldName = decl.getVariable(0).getNameAsString();
-                        String fieldType = decl.getVariable(0).getTypeAsString();
+                        String fieldType = decl.getVariable(0).getTypeAsString().replace('.','/');;
                         for(ImportDeclaration declaration : importDeclarations){
                             String[] theSplit = declaration.getNameAsString().split("\\.");
                             String importedClass = theSplit[theSplit.length-1];
@@ -77,13 +80,13 @@ public class Main {
                         cppClass.fields.add(new CppField(fieldType, fieldName));
                         //Logger.Log("Added Field: "+fieldName+" of type: "+fieldType+" to class "+className);
                     }
-                    List<MethodDeclaration> methods = compilationUnit.findAll(MethodDeclaration.class);
+                    /*List<MethodDeclaration> methods = compilationUnit.findAll(MethodDeclaration.class);
                     for(MethodDeclaration decl : methods){
                         String methodName = decl.getNameAsString();
-                        String methodType = decl.getTypeAsString();
+                        String methodType = decl.getTypeAsString().replace('.','/');
                         cppClass.methods.add(new CppMethod(methodType, methodName));
                         //Logger.Log("Added Method: "+methodName+" of type: "+methodType+" to class "+className);
-                    }
+                    }*/
 
                     classes.add(cppClass);
                 }catch (Exception ex) {
@@ -113,24 +116,44 @@ public class Main {
             Thread.sleep(100);
         }; //Logger.Log(done.size() + " " + threads.size());
 
+        for (String s : erroredClass) {
+            Logger.Log("Failed to read class " + s);
+        }
+
         /*
         Deobfuscating phase
          */
         Logger.Log("Deobfuscating classes...");
+        String srgPath = "A:/Downloads/mcp-1.8.9-srg/joined.srg";
+        List<String> lines = Files.readAllLines(Paths.get(srgPath), StandardCharsets.UTF_8);
+        lines.forEach(lineStr -> {
+            SRGLine srgLine = new SRGLine(lineStr);
+            if(srgLine.getType().equals(SRG_Type.Class)){
+                ClassSRGLine classLine = new ClassSRGLine(lineStr);
+                String obfClassName = classLine.obfuscatedName();
+                for(CppClass cppClass : classes){
+                    if(cppClass.obfuscatedName.equals(obfClassName)){
+                        cppClass.setUnmappedName(classLine.deobfuscatedName());
+                        cppClass.setMappedName(classLine.deobfuscatedName());
+                    }
+                }
+            }
+        });
 
         /*
         Mapping phase
          */
         Logger.Log("Mapping classes...");
 
-        for (String s : erroredClass) {
-            Logger.Log("Failed to generate class " + s);
-        }
 
+        /*
+        Test generation phase
+         */
+        Logger.Log("Test generating classes...");
         for(CppClass cppClass : classes){
-                Logger.Log("GENERATED " + cppClass.mappedClassName + ".H");
+                Logger.Log("GENERATED " + cppClass.mappedName + ".H");
                 Logger.Log(cppClass.genClass());
-                Logger.Log("END OF " + cppClass.mappedClassName + ".H");
+                Logger.Log("END OF " + cppClass.mappedName + ".H");
         }
 
         /*

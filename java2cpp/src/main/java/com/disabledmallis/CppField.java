@@ -1,23 +1,31 @@
 package com.disabledmallis;
 
-public class CppField {
+public class CppField extends Mappable{
+    public String obfuscatedType;
     public String unmappedType;
-    public String unmappedName;
-    public String mappedName;
     public String mappedType;
-    public CppField(String unmappedType, String unmappedName){
-        this.unmappedType = unmappedType;
-        this.mappedType = unmappedType;
-        this.unmappedName = unmappedName;
-        this.mappedName = unmappedName;
+    public CppField(String obfuscatedType, String obfuscatedName){
+        super(obfuscatedName);
+        this.obfuscatedType = obfuscatedType;
     }
+
+    public void setObfuscatedType(String obfuscatedType) {
+        this.obfuscatedType = obfuscatedType;
+    }
+    public void setUnmappedType(String unmappedType) {
+        this.unmappedType = unmappedType;
+    }
+    public void setMappedType(String mappedType) {
+        this.mappedType = mappedType;
+    }
+
     public String genGet(){
         String totalType = Utils.getClassNameFromPath(mappedType);
         if(!Utils.isPrimitive(totalType)){
             totalType = "class "+totalType+"*";
         }
 
-        return ("\n\t#TOTALTYPE# #NAME#()\n" +
+        return ("\t#TOTALTYPE# get_#NAME#()\n" +
                 "\t{\n" +
                 "\t\tJNIEnv* env = Utils::getJNI();\n" +
                 "\t\tjfieldID field = env->GetFieldID(env->GetObjectClass(this), \"#UM_FIELDNAME#\", \"#TYPE#\");\n" +
