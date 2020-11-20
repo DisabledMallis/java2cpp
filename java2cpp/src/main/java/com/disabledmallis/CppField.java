@@ -20,7 +20,7 @@ public class CppField extends Mappable{
     }
 
     public String genGet(){
-        String totalType = Utils.getClassNameFromPath(mappedType);
+        String totalType = Utils.getChildFromPath(mappedType);
         if(!Utils.isPrimitive(totalType)){
             totalType = "class "+totalType+"*";
         }

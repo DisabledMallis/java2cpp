@@ -55,7 +55,11 @@ public class Utils {
         return fuck.replace(".", "/");
     }
 
-    public static String getClassNameFromPath(String classPath){
-        return classPath.split("/")[classPath.split("/").length-1];
+    public static String getChildFromPath(String path){
+        return path.split("/")[path.split("/").length-1];
+    }
+    public static String removeChildFromPath(String path){
+        int index = path.lastIndexOf('/');
+        return path.substring(0, index);
     }
 }

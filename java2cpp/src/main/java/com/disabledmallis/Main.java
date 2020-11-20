@@ -140,6 +140,20 @@ public class Main {
                     }
                 }
             }
+
+            //Map fields
+            if(srgLine.getType().equals(SRG_Type.Field)){
+                FieldSRGLine fieldLine = new FieldSRGLine(lineStr);
+                for(CppClass cppClass : classes){
+                    if(cppClass.obfuscatedName.equals(fieldLine.obfClassName())){
+                        for(CppField cppField : cppClass.fields){
+                            if(cppField.obfuscatedName.equals(fieldLine.obfName())){
+                                cppField.setUnmappedName(fieldLine.deobfName());
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         /*

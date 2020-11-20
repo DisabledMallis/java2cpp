@@ -25,7 +25,7 @@ public class ClassSRGLine extends SRGLine {
             end = deobfHalf().indexOf('$');
         }
         String deobfPath = deobfHalf().substring(0, end);
-        String deobfName = Utils.getClassNameFromPath(deobfPath);
+        String deobfName = Utils.getChildFromPath(deobfPath);
         return deobfName;
     }
 
