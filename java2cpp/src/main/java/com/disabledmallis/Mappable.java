@@ -7,6 +7,8 @@ public abstract class Mappable {
 
     public Mappable(String obfuscatedName){
         this.obfuscatedName = obfuscatedName;
+        this.unmappedName = obfuscatedName;
+        this.mappedName = obfuscatedName;
     }
     public void setObfuscatedName(String unmappedName){
         this.obfuscatedName = obfuscatedName;
