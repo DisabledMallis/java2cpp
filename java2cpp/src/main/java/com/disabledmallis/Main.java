@@ -150,10 +150,6 @@ public class Main {
                                     if(cppField.obfuscatedType.equals(cppClass1.obfuscatedName)){
                                         cppField.setUnmappedType(cppClass1.unmappedName);
                                         cppField.setMappedType(cppClass1.unmappedName);
-                                        Logger.Log("Mapped yo bullshit "+cppField.unmappedName);
-                                    }
-                                    else{
-                                        Logger.Log(cppField.obfuscatedType+" != "+cppClass1.obfuscatedName);
                                     }
                                 }
                             }

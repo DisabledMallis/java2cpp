@@ -7,6 +7,8 @@ public class CppField extends Mappable{
     public CppField(String obfuscatedType, String obfuscatedName){
         super(obfuscatedName);
         this.obfuscatedType = obfuscatedType;
+        this.unmappedType = obfuscatedType;
+        this.mappedType = obfuscatedType;
     }
 
     public void setObfuscatedType(String obfuscatedType) {

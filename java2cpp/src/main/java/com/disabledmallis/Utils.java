@@ -56,6 +56,9 @@ public class Utils {
     }
 
     public static String getChildFromPath(String path){
+        if(!path.contains("/")){
+            return path;
+        }
         return path.split("/")[path.split("/").length-1];
     }
     public static String removeChildFromPath(String path){
